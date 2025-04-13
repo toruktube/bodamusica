@@ -10,23 +10,11 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || fallbackUrl;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || fallbackKey;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials are missing. Using fallback values for development.');
+  console.warn(
+    'Supabase credentials are missing. Make sure to set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your .env file.'
+  );
+} else {
+  console.log('Supabase configured with URL:', supabaseUrl);
 }
 
-// Crear cliente con manejo de errores
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-// Función de ayuda para verificar la conexión
-export const checkSupabaseConnection = async () => {
-  try {
-    const { error } = await supabase.from('events').select('count').limit(1);
-    if (error) {
-      console.error('Error connecting to Supabase:', error);
-      return false;
-    }
-    return true;
-  } catch (err) {
-    console.error('Failed to connect to Supabase:', err);
-    return false;
-  }
-};

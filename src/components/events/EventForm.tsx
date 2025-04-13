@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { EventType, CeremonyType, EventFormData } from '@/types/event';
+import { EventType, EventFormData } from '@/types/event';
 
 interface EventFormProps {
   onClose: () => void;
@@ -10,11 +10,9 @@ interface EventFormProps {
 
 export default function EventForm({ onClose, onSubmit }: EventFormProps) {
   const [formData, setFormData] = useState<EventFormData>({
-    name: '',
-    type: EventType.WEDDING,
-    ceremonyType: CeremonyType.RELIGIOUS,
+    title: '',
+    type: EventType.CONCIERTO,
     date: '',
-    time: '',
     location: '',
     description: '',
   });
@@ -59,20 +57,20 @@ export default function EventForm({ onClose, onSubmit }: EventFormProps) {
 
         <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-6">
-            {/* Nombre del evento */}
+            {/* Título del evento */}
             <div>
               <label
-                htmlFor="name"
+                htmlFor="title"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                Nombre del evento
+                Título del evento
               </label>
               <input
                 type="text"
-                id="name"
-                name="name"
+                id="title"
+                name="title"
                 required
-                value={formData.name}
+                value={formData.title}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
               />
@@ -94,73 +92,30 @@ export default function EventForm({ onClose, onSubmit }: EventFormProps) {
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
               >
-                <option value={EventType.WEDDING}>Boda</option>
-                <option value={EventType.COMMUNION}>Comunión</option>
-                <option value={EventType.PARTY}>Fiesta</option>
-                <option value={EventType.OTHER}>Otro</option>
+                <option value={EventType.CONCIERTO}>Concierto</option>
+                <option value={EventType.CLASE}>Clase</option>
+                <option value={EventType.ENSAYO}>Ensayo</option>
+                <option value={EventType.OTRO}>Otro</option>
               </select>
             </div>
 
-            {/* Tipo de ceremonia */}
+            {/* Fecha */}
             <div>
               <label
-                htmlFor="ceremonyType"
+                htmlFor="date"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                Tipo de ceremonia
+                Fecha
               </label>
-              <select
-                id="ceremonyType"
-                name="ceremonyType"
+              <input
+                type="date"
+                id="date"
+                name="date"
                 required
-                value={formData.ceremonyType}
+                value={formData.date}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
-              >
-                <option value={CeremonyType.RELIGIOUS}>Ceremonia Religiosa</option>
-                <option value={CeremonyType.CIVIL}>Ceremonia Civil</option>
-                <option value={CeremonyType.BAPTISM}>Bautizo</option>
-                <option value={CeremonyType.COCKTAIL}>Cóctel</option>
-                <option value={CeremonyType.FUNERAL}>Funeral</option>
-              </select>
-            </div>
-
-            {/* Fecha y hora */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="date"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Fecha
-                </label>
-                <input
-                  type="date"
-                  id="date"
-                  name="date"
-                  required
-                  value={formData.date}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="time"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Hora
-                </label>
-                <input
-                  type="time"
-                  id="time"
-                  name="time"
-                  required
-                  value={formData.time}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
-                />
-              </div>
+              />
             </div>
 
             {/* Lugar */}
@@ -169,7 +124,7 @@ export default function EventForm({ onClose, onSubmit }: EventFormProps) {
                 htmlFor="location"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                Lugar (dirección de Google Maps)
+                Lugar
               </label>
               <input
                 type="text"

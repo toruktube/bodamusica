@@ -1,15 +1,46 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { CeremonyType, EventFormData, Event } from '@/types/event';
+import { EventFormData, Event, EventType } from '@/types/event';
 import EventForm from '@/components/events/EventForm';
-import { getEvents, createEvent } from '@/lib/events-service';
+import { getEvents, createEvent, deleteEvent } from '@/services/eventService';
+import { toast } from 'react-hot-toast';
+import { supabase } from '@/lib/supabase';
 
 export default function EventsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Verificar la conexión con Supabase
+  useEffect(() => {
+    async function checkSupabaseConnection() {
+      try {
+        console.log('Verificando conexión con Supabase...');
+        const { data, error } = await supabase.from('events').select('count');
+
+        if (error) {
+          console.error('Error al conectar con Supabase:', error);
+          // Verificar si la tabla existe
+          if (error.code === '42P01') {
+            console.error('La tabla "events" no existe en la base de datos');
+            setError(
+              'La tabla "events" no existe en la base de datos. Por favor, crea la tabla primero.'
+            );
+          } else {
+            setError(`Error de conexión con Supabase: ${error.message}`);
+          }
+        } else {
+          console.log('Conexión exitosa con Supabase. Tabla events accesible.', data);
+        }
+      } catch (err) {
+        console.error('Error al verificar conexión:', err);
+      }
+    }
+
+    checkSupabaseConnection();
+  }, []);
 
   useEffect(() => {
     async function loadEvents() {
@@ -18,9 +49,9 @@ export default function EventsPage() {
         const fetchedEvents = await getEvents();
         setEvents(fetchedEvents);
         setError(null);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error loading events:', err);
-        setError('Error al cargar los eventos. Por favor, inténtalo de nuevo.');
+        setError(`Error al cargar los eventos: ${err?.message || 'Error desconocido'}`);
       } finally {
         setLoading(false);
       }
@@ -37,15 +68,57 @@ export default function EventsPage() {
       if (newEvent) {
         setEvents(prev => [newEvent, ...prev]);
         setIsFormOpen(false);
+        toast.success('Evento creado correctamente');
         setError(null);
       } else {
         setError('Error al crear el evento. Por favor, inténtalo de nuevo.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error creating event:', err);
-      setError('Error al crear el evento. Por favor, inténtalo de nuevo.');
+      setError(`Error al crear el evento: ${err?.message || 'Error desconocido'}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteEvent = async (eventId: string) => {
+    if (confirm('¿Estás seguro de que deseas eliminar este evento?')) {
+      try {
+        setLoading(true);
+        await deleteEvent(eventId);
+        setEvents(events.filter(event => event.id !== eventId));
+        toast.success('Evento eliminado correctamente');
+      } catch (err: any) {
+        console.error('Error deleting event:', err);
+        setError(`Error al eliminar el evento: ${err?.message || 'Error desconocido'}`);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  // Función para traducir el tipo de evento a español
+  const getEventTypeText = (type: EventType): string => {
+    const typeMap: Record<EventType, string> = {
+      [EventType.CONCIERTO]: 'Concierto',
+      [EventType.CLASE]: 'Clase',
+      [EventType.ENSAYO]: 'Ensayo',
+      [EventType.OTRO]: 'Otro',
+    };
+    return typeMap[type] || 'Desconocido';
+  };
+
+  // Función para formatear la fecha
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    } catch (error) {
+      return 'Fecha no válida';
     }
   };
 
@@ -106,17 +179,31 @@ export default function EventsPage() {
                   key={event.id}
                   className="bg-white dark:bg-gray-700 p-4 rounded-md shadow border border-accent-2 hover:shadow-md transition-shadow"
                 >
-                  <h3 className="text-lg font-medium text-primary-dark">{event.name}</h3>
+                  <div className="flex justify-between">
+                    <h3 className="text-lg font-medium text-primary-dark">{event.title}</h3>
+                    <button
+                      onClick={() => handleDeleteEvent(event.id)}
+                      className="text-red-500 hover:text-red-700"
+                      title="Eliminar evento"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                   <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-sm">
                     <div>
                       <span className="font-medium">Fecha: </span>
-                      {event.date.toLocaleDateString('es-ES', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                      {formatDate(event.date)}
                     </div>
                     <div>
                       <span className="font-medium">Lugar: </span>
@@ -124,11 +211,7 @@ export default function EventsPage() {
                     </div>
                     <div>
                       <span className="font-medium">Tipo: </span>
-                      {event.ceremonyType === CeremonyType.RELIGIOUS && 'Ceremonia Religiosa'}
-                      {event.ceremonyType === CeremonyType.CIVIL && 'Ceremonia Civil'}
-                      {event.ceremonyType === CeremonyType.BAPTISM && 'Bautizo'}
-                      {event.ceremonyType === CeremonyType.COCKTAIL && 'Cóctel'}
-                      {event.ceremonyType === CeremonyType.FUNERAL && 'Funeral'}
+                      {getEventTypeText(event.type)}
                     </div>
                     {event.description && (
                       <div className="md:col-span-2 mt-2">
