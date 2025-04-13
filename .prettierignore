@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+public/
+build/
+dist/
+.vercel/
+.husky/
+package-lock.json 
