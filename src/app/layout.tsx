@@ -19,11 +19,13 @@ export const metadata: Metadata = {
   title: "BodaMúsica - Gestión de eventos musicales",
   description: "Aplicación para la gestión y planificación de música en eventos especiales",
   icons: {
-    icon: [
-      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
-      { url: '/favicon.ico', type: 'image/x-icon', sizes: 'any' }
-    ],
-    apple: { url: '/apple-icon.png', type: 'image/png', sizes: '180x180' },
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/apple-icon.png',
+    other: {
+      rel: 'apple-touch-icon',
+      url: '/apple-icon.png',
+    },
   },
 };
 
@@ -34,6 +36,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
+      <head>
+        <link rel="icon" href="/icon.png" />
+        <link rel="shortcut icon" href="/icon.png" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
         suppressHydrationWarning

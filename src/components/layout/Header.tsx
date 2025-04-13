@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 
 export default function Header() {
@@ -12,8 +13,17 @@ export default function Header() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-xl font-bold text-primary hover:text-primary-dark transition-colors">
-                BodaMúsica
+              <Link href="/" className="flex items-center gap-2">
+                <Image 
+                  src="/icon.png" 
+                  alt="BodaMúsica Logo" 
+                  width={32} 
+                  height={32} 
+                  priority
+                />
+                <span className="text-xl font-bold text-primary hover:text-primary-dark transition-colors">
+                  BodaMúsica
+                </span>
               </Link>
             </div>
             <nav className="hidden sm:ml-6 sm:flex sm:space-x-8">

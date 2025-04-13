@@ -1,37 +1,52 @@
 'use client';
 
-import { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { useState, useEffect } from 'react';
 import { EventType, CeremonyType, EventFormData, Event } from '@/types/event';
 import EventForm from '@/components/events/EventForm';
+import { getEvents, createEvent } from '@/lib/events-service';
 
 export default function EventsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleCreateEvent = (data: EventFormData) => {
-    // Combinar fecha y hora
-    const dateTime = new Date(`${data.date}T${data.time}`);
-    
-    // Crear un nuevo evento
-    const newEvent: Event = {
-      id: uuidv4(),
-      name: data.name,
-      type: data.type,
-      ceremonyType: data.ceremonyType,
-      date: dateTime,
-      location: data.location,
-      description: data.description,
-      moments: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    
-    // Añadir el evento a la lista
-    setEvents(prev => [...prev, newEvent]);
-    
-    // Cerrar el formulario
-    setIsFormOpen(false);
+  useEffect(() => {
+    async function loadEvents() {
+      try {
+        setLoading(true);
+        const fetchedEvents = await getEvents();
+        setEvents(fetchedEvents);
+        setError(null);
+      } catch (err) {
+        console.error('Error loading events:', err);
+        setError('Error al cargar los eventos. Por favor, inténtalo de nuevo.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadEvents();
+  }, []);
+
+  const handleCreateEvent = async (data: EventFormData) => {
+    try {
+      setLoading(true);
+      const newEvent = await createEvent(data);
+      
+      if (newEvent) {
+        setEvents(prev => [newEvent, ...prev]);
+        setIsFormOpen(false);
+        setError(null);
+      } else {
+        setError('Error al crear el evento. Por favor, inténtalo de nuevo.');
+      }
+    } catch (err) {
+      console.error('Error creating event:', err);
+      setError('Error al crear el evento. Por favor, inténtalo de nuevo.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,10 +56,26 @@ export default function EventsPage() {
         <button
           onClick={() => setIsFormOpen(true)}
           className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          disabled={loading}
         >
           Crear evento
         </button>
       </div>
+      
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className="bg-accent-1 dark:bg-accent-1 shadow overflow-hidden rounded-lg border border-accent-2">
         <div className="px-4 py-5 sm:px-6">
@@ -57,7 +88,11 @@ export default function EventsPage() {
         </div>
         
         <div className="border-t border-accent-2 px-4 py-5 sm:p-6">
-          {events.length > 0 ? (
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+          ) : events.length > 0 ? (
             <div className="space-y-4">
               {events.map(event => (
                 <div 
@@ -107,6 +142,7 @@ export default function EventsPage() {
                 type="button"
                 onClick={() => setIsFormOpen(true)}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                disabled={loading}
               >
                 Crear nuevo evento
               </button>
