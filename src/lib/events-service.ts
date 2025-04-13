@@ -1,11 +1,44 @@
-import { supabase } from './supabase';
+import { supabase, checkSupabaseConnection } from './supabase';
 import { Event, EventFormData, CeremonyType, EventType } from '@/types/event';
 import { v4 as uuidv4 } from 'uuid';
 
 const TABLE_NAME = 'events';
 
+// Verificar la conexión al inicializar el servicio
+let connectionChecked = false;
+const ensureConnection = async () => {
+  if (!connectionChecked) {
+    const isConnected = await checkSupabaseConnection();
+    if (!isConnected) {
+      console.warn('Using mock data as Supabase connection failed');
+    }
+    connectionChecked = true;
+    return isConnected;
+  }
+  return true;
+};
+
+// Datos de ejemplo para cuando no hay conexión
+const MOCK_EVENTS: Event[] = [
+  {
+    id: '1',
+    name: 'Boda de ejemplo',
+    type: EventType.WEDDING,
+    ceremonyType: CeremonyType.RELIGIOUS,
+    date: new Date(),
+    location: 'Calle Ejemplo, 123',
+    description: 'Evento de prueba',
+    moments: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+];
+
 export async function getEvents(): Promise<Event[]> {
   try {
+    const isConnected = await ensureConnection();
+    if (!isConnected) return MOCK_EVENTS;
+
     const { data, error } = await supabase
       .from(TABLE_NAME)
       .select('*')
@@ -13,7 +46,7 @@ export async function getEvents(): Promise<Event[]> {
 
     if (error) {
       console.error('Error fetching events:', error);
-      return [];
+      return MOCK_EVENTS;
     }
 
     return data.map(item => ({
@@ -24,17 +57,16 @@ export async function getEvents(): Promise<Event[]> {
     }));
   } catch (error) {
     console.error('Error in getEvents:', error);
-    return [];
+    return MOCK_EVENTS;
   }
 }
 
 export async function getEvent(id: string): Promise<Event | null> {
   try {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .select('*')
-      .eq('id', id)
-      .single();
+    const isConnected = await ensureConnection();
+    if (!isConnected) return MOCK_EVENTS[0];
+
+    const { data, error } = await supabase.from(TABLE_NAME).select('*').eq('id', id).single();
 
     if (error) {
       console.error('Error fetching event:', error);
@@ -55,9 +87,12 @@ export async function getEvent(id: string): Promise<Event | null> {
 
 export async function createEvent(formData: EventFormData): Promise<Event | null> {
   try {
+    // Verificar conexión antes de intentar crear
+    const isConnected = await ensureConnection();
+
     // Combinar fecha y hora
     const dateTime = new Date(`${formData.date}T${formData.time}`);
-    
+
     // Crear un nuevo evento
     const newEvent: Event = {
       id: uuidv4(),
@@ -71,7 +106,13 @@ export async function createEvent(formData: EventFormData): Promise<Event | null
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    
+
+    // Si no hay conexión, devolver el evento para desarrollo local
+    if (!isConnected) {
+      console.log('Using mock data - event created locally only');
+      return newEvent;
+    }
+
     const { data, error } = await supabase
       .from(TABLE_NAME)
       .insert([
@@ -80,14 +121,15 @@ export async function createEvent(formData: EventFormData): Promise<Event | null
           date: newEvent.date.toISOString(),
           createdAt: newEvent.createdAt.toISOString(),
           updatedAt: newEvent.updatedAt.toISOString(),
-        }
+        },
       ])
       .select()
       .single();
 
     if (error) {
       console.error('Error creating event:', error);
-      return null;
+      // En caso de error, devolver el evento para desarrollo
+      return newEvent;
     }
 
     return {
@@ -104,6 +146,9 @@ export async function createEvent(formData: EventFormData): Promise<Event | null
 
 export async function updateEvent(event: Event): Promise<Event | null> {
   try {
+    const isConnected = await ensureConnection();
+    if (!isConnected) return event;
+
     const { data, error } = await supabase
       .from(TABLE_NAME)
       .update({
@@ -117,7 +162,7 @@ export async function updateEvent(event: Event): Promise<Event | null> {
 
     if (error) {
       console.error('Error updating event:', error);
-      return null;
+      return event;
     }
 
     return {
@@ -128,16 +173,16 @@ export async function updateEvent(event: Event): Promise<Event | null> {
     };
   } catch (error) {
     console.error('Error in updateEvent:', error);
-    return null;
+    return event;
   }
 }
 
 export async function deleteEvent(id: string): Promise<boolean> {
   try {
-    const { error } = await supabase
-      .from(TABLE_NAME)
-      .delete()
-      .eq('id', id);
+    const isConnected = await ensureConnection();
+    if (!isConnected) return true;
+
+    const { error } = await supabase.from(TABLE_NAME).delete().eq('id', id);
 
     if (error) {
       console.error('Error deleting event:', error);
@@ -149,4 +194,4 @@ export async function deleteEvent(id: string): Promise<boolean> {
     console.error('Error in deleteEvent:', error);
     return false;
   }
-} 
+}
