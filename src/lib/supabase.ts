@@ -18,3 +18,25 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+/**
+ * Verifica la conexión con Supabase intentando realizar una consulta simple
+ * @returns Promise<boolean> - true si la conexión es exitosa, false en caso contrario
+ */
+export async function checkSupabaseConnection(): Promise<boolean> {
+  try {
+    // Intentar una operación simple para verificar la conexión
+    const { error } = await supabase.from('events').select('count', { count: 'exact', head: true });
+
+    if (error) {
+      console.error('Error al verificar la conexión con Supabase:', error);
+      return false;
+    }
+
+    console.log('Conexión con Supabase exitosa');
+    return true;
+  } catch (error) {
+    console.error('Error inesperado al verificar la conexión con Supabase:', error);
+    return false;
+  }
+}

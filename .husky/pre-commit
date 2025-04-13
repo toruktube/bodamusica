@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+# Ejecutar lint-staged en lugar de intentar manejar los archivos directamente
+# Es más seguro y maneja mejor casos especiales
 npx lint-staged

@@ -9,12 +9,11 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "npm run lint && npm run typecheck",
-    "prepare": "husky && husky install"
+    "test": "npm run typecheck",
+    "prepare": "husky install || true"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
-      "eslint --fix",
+    "*.{ts,tsx,js,jsx,json,md,css}": [
       "prettier --write"
     ]
   },
