@@ -7,25 +7,25 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-sm">
+    <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-accent-2">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-xl font-bold">
+              <Link href="/" className="text-xl font-bold text-primary hover:text-primary-dark transition-colors">
                 BodaMúsica
               </Link>
             </div>
             <nav className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link 
                 href="/" 
-                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                className="border-transparent text-gray-500 hover:border-primary hover:text-primary dark:text-gray-300 dark:hover:text-primary-light inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
               >
                 Inicio
               </Link>
               <Link 
                 href="/events" 
-                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                className="border-transparent text-gray-500 hover:border-primary hover:text-primary dark:text-gray-300 dark:hover:text-primary-light inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
               >
                 Eventos
               </Link>
@@ -36,7 +36,7 @@ export default function Header() {
           <div className="flex items-center sm:hidden">
             <button
               type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-primary hover:bg-accent-1 dark:hover:bg-accent-3 dark:hover:text-primary-light"
               aria-controls="mobile-menu"
               aria-expanded="false"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -72,13 +72,13 @@ export default function Header() {
         <div className="pt-2 pb-3 space-y-1">
           <Link
             href="/"
-            className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+            className="border-transparent text-gray-500 hover:bg-accent-1 hover:border-primary hover:text-primary dark:hover:bg-accent-3 dark:text-gray-300 dark:hover:text-primary-light block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
           >
             Inicio
           </Link>
           <Link
             href="/events"
-            className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+            className="border-transparent text-gray-500 hover:bg-accent-1 hover:border-primary hover:text-primary dark:hover:bg-accent-3 dark:text-gray-300 dark:hover:text-primary-light block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
           >
             Eventos
           </Link>
