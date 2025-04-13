@@ -1,0 +1,10 @@
+.git
+node_modules
+.eslintrc.js
+.eslintrc.json
+.prettierrc
+README.md
+.vscode
+.github
+.husky
+.next 
