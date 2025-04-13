@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BodaMúsica App
 
-## Getting Started
+Aplicación web para gestionar eventos musicales (bodas, comuniones, etc.) y planificar la música para cada momento del evento.
 
-First, run the development server:
+## Tecnologías
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js 14 con App Router
+- TypeScript
+- Tailwind CSS
+- Vercel (despliegue)
+
+## Estructura del proyecto
+
+```
+bodamusica.app/
+├── src/
+│   ├── app/                   # App Router de Next.js
+│   │   ├── events/            # Rutas para gestión de eventos
+│   │   ├── page.tsx           # Página de inicio
+│   │   └── layout.tsx         # Layout principal
+│   ├── components/            # Componentes reutilizables
+│   │   └── layout/            # Componentes de layout (Header, Footer)
+│   ├── lib/                   # Utilidades y funciones auxiliares
+│   ├── types/                 # Definiciones de tipos TypeScript
+│   ├── hooks/                 # Hooks personalizados
+│   └── styles/                # Estilos adicionales
+├── public/                    # Archivos estáticos
+├── .env                       # Variables de entorno locales
+├── .env.example               # Ejemplo de variables de entorno
+└── package.json               # Dependencias y scripts
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Desarrollo local
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clona el repositorio:
+   ```bash
+   git clone https://github.com/toruktube/bodamusica.git
+   cd bodamusica.app
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. Instala las dependencias:
+   ```bash
+   npm install
+   ```
 
-## Learn More
+3. Crea un archivo `.env` basado en `.env.example`
 
-To learn more about Next.js, take a look at the following resources:
+4. Inicia el servidor de desarrollo:
+   ```bash
+   npm run dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Flujo de trabajo Git
 
-## Deploy on Vercel
+- Rama principal: `main`
+- Desarrollo en ramas de funcionalidad: `feature/nombre-funcionalidad`
+- Pull requests a `main` para revisión y fusión
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Despliegue
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+La aplicación se despliega automáticamente en Vercel cuando se envían cambios a la rama `main`.
