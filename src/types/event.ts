@@ -1,8 +1,9 @@
 export enum EventType {
-  CONCIERTO = 'concierto',
-  CLASE = 'clase',
-  ENSAYO = 'ensayo',
-  OTRO = 'otro',
+  BODA_CIVIL = 'boda_civil',
+  BODA_RELIGIOSA = 'boda_religiosa',
+  COMUNION = 'comunion',
+  COCTEL = 'coctel',
+  FUNERAL = 'funeral',
 }
 
 export interface EventMoment {
@@ -26,6 +27,8 @@ export interface Event {
   title: string;
   description: string;
   date: string;
+  hour: string;
+  minute: string;
   location: string;
   type: EventType;
   created_at?: string;
@@ -35,8 +38,10 @@ export interface Event {
 
 export interface EventFormData {
   title: string;
-  description: string;
-  date: string;
-  location: string;
   type: EventType;
+  date: string;
+  hour: string;
+  minute: string;
+  location: string;
+  description: string;
 }

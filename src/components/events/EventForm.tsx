@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { EventType, EventFormData } from '@/types/event';
+import { Loader } from '@googlemaps/js-api-loader';
 
 interface EventFormProps {
   onClose: () => void;
@@ -11,11 +12,52 @@ interface EventFormProps {
 export default function EventForm({ onClose, onSubmit }: EventFormProps) {
   const [formData, setFormData] = useState<EventFormData>({
     title: '',
-    type: EventType.CONCIERTO,
+    type: EventType.BODA_CIVIL,
     date: '',
+    hour: '12',
+    minute: '00',
     location: '',
     description: '',
   });
+
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
+
+  useEffect(() => {
+    const loader = new Loader({
+      apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+      version: 'weekly',
+      libraries: ['places'],
+    });
+
+    loader.load().then(() => {
+      const mapInstance = new google.maps.Map(document.getElementById('map') as HTMLElement, {
+        center: { lat: 40.4168, lng: -3.7038 }, // Madrid por defecto
+        zoom: 12,
+      });
+
+      const autocompleteInstance = new google.maps.places.Autocomplete(
+        document.getElementById('location') as HTMLInputElement,
+        {
+          types: ['establishment', 'geocode'],
+          componentRestrictions: { country: 'es' },
+        }
+      );
+
+      autocompleteInstance.addListener('place_changed', () => {
+        const place = autocompleteInstance.getPlace();
+        if (place.formatted_address) {
+          setFormData(prev => ({
+            ...prev,
+            location: place.formatted_address,
+          }));
+        }
+      });
+
+      setMap(mapInstance);
+      setAutocomplete(autocompleteInstance);
+    });
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -92,33 +134,82 @@ export default function EventForm({ onClose, onSubmit }: EventFormProps) {
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
               >
-                <option value={EventType.CONCIERTO}>Concierto</option>
-                <option value={EventType.CLASE}>Clase</option>
-                <option value={EventType.ENSAYO}>Ensayo</option>
-                <option value={EventType.OTRO}>Otro</option>
+                <option value={EventType.BODA_CIVIL}>Boda Civil</option>
+                <option value={EventType.BODA_RELIGIOSA}>Boda Religiosa</option>
+                <option value={EventType.COMUNION}>Comunión</option>
+                <option value={EventType.COCTEL}>Cóctel</option>
+                <option value={EventType.FUNERAL}>Funeral</option>
               </select>
             </div>
 
-            {/* Fecha */}
-            <div>
-              <label
-                htmlFor="date"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Fecha
-              </label>
-              <input
-                type="date"
-                id="date"
-                name="date"
-                required
-                value={formData.date}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
-              />
+            {/* Fecha y hora */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="col-span-1">
+                <label
+                  htmlFor="date"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Fecha
+                </label>
+                <input
+                  type="date"
+                  id="date"
+                  name="date"
+                  required
+                  value={formData.date}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="hour"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Hora
+                </label>
+                <select
+                  id="hour"
+                  name="hour"
+                  required
+                  value={formData.hour}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
+                >
+                  {Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')).map(hour => (
+                    <option key={hour} value={hour}>
+                      {hour}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label
+                  htmlFor="minute"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Minutos
+                </label>
+                <select
+                  id="minute"
+                  name="minute"
+                  required
+                  value={formData.minute}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
+                >
+                  {Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0')).map(
+                    minute => (
+                      <option key={minute} value={minute}>
+                        {minute}
+                      </option>
+                    )
+                  )}
+                </select>
+              </div>
             </div>
 
-            {/* Lugar */}
+            {/* Lugar con Google Maps */}
             <div>
               <label
                 htmlFor="location"
@@ -134,7 +225,9 @@ export default function EventForm({ onClose, onSubmit }: EventFormProps) {
                 value={formData.location}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
+                placeholder="Buscar lugar..."
               />
+              <div id="map" className="mt-2 h-48 w-full rounded-md border border-accent-2"></div>
             </div>
 
             {/* Descripción */}
@@ -154,22 +247,23 @@ export default function EventForm({ onClose, onSubmit }: EventFormProps) {
                 className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
               />
             </div>
-          </div>
 
-          <div className="mt-8 flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-accent-2 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            >
-              Guardar
-            </button>
+            {/* Botones */}
+            <div className="flex justify-end space-x-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                Crear evento
+              </button>
+            </div>
           </div>
         </form>
       </div>
