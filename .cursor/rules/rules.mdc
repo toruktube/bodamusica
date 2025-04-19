@@ -1,0 +1,95 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# BodaMúsica.app – Cursor Rules
+
+App para gestionar eventos musicales (bodas, comuniones, etc.), desarrollada con Next.js 15, TypeScript, Tailwind CSS y Supabase. Pensada para móviles (80% del tráfico).
+
+---
+
+## Project Structure
+
+- `src/app/`: rutas y páginas con App Router
+- `src/components/`: componentes reutilizables
+- `src/lib/`: cliente Supabase y utilidades
+- `src/services/`: lógica del dominio
+- `src/types/`: tipos compartidos
+- `supabase/`: scripts SQL
+- `public/`: imágenes y assets estáticos
+
+---
+
+## Tech Stack
+
+- **Framework**: Next.js 15
+- **Lenguaje**: TypeScript
+- **Estilos**: Tailwind CSS
+- **Backend & Auth**: Supabase
+- **Maps**: Google Maps JavaScript API
+- **Deploy**: Vercel
+
+---
+
+## Rules
+
+- `camelCase` para funciones, variables, props
+- `PascalCase` para componentes, tipos e interfaces
+- Archivos ≤ 250 líneas si es posible
+- Comentar funciones complejas
+- Evitar `any`; usar tipos explícitos o `unknown`
+- Hooks en `/hooks`, servicios en `/services`
+
+---
+
+## Next.js
+
+- Usar App Router (`src/app/`)
+- Server Components por defecto
+- `'use client'` solo si es necesario
+- `layout.tsx`, `page.tsx`, `loading.tsx`, `error.tsx` por ruta
+- Imágenes con `next/image`
+
+---
+
+## Supabase
+
+- Cliente en `lib/supabase.ts`
+- Usar `eventService.ts`, `userService.ts`, etc.
+- Variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- Tipos alineados con la base de datos
+
+---
+
+## Google Maps
+
+- API key pública en `.env.local`
+- Activar **Maps JavaScript API**
+- Validar selección de ubicación
+- Restringir clave por dominio
+
+---
+
+## Tailwind CSS
+
+- Estilos exclusivamente con clases de Tailwind
+- Responsive obligatorio (80% usuarios en móvil)
+- Dark mode con `dark:`
+- Paleta coherente: `primary`, `accent`, etc.
+
+---
+
+## Dominio
+
+- Evento → Momentos → Canciones
+- Validar fechas, ubicaciones y formularios
+- UX simple para no técnicos
+
+---
+
+## Dev Notes
+
+- Despliegue automático en Vercel desde `main`
+- Variables de entorno en Vercel
+- CI con GitHub Actions para lint + preview

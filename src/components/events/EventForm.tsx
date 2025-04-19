@@ -49,7 +49,7 @@ export default function EventForm({ onClose, onSubmit }: EventFormProps) {
         if (place.formatted_address) {
           setFormData(prev => ({
             ...prev,
-            location: place.formatted_address,
+            location: place.formatted_address || '',
           }));
         }
       });

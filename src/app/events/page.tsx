@@ -6,12 +6,14 @@ import EventForm from '@/components/events/EventForm';
 import { getEvents, createEvent, deleteEvent } from '@/services/eventService';
 import { toast } from 'react-hot-toast';
 import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 export default function EventsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   // Verificar la conexión con Supabase
   useEffect(() => {
@@ -40,6 +42,18 @@ export default function EventsPage() {
     }
 
     checkSupabaseConnection();
+  }, []);
+
+  // Sincronizar perfil tras login (por si viene de OAuth o el login no lo hizo)
+  useEffect(() => {
+    async function syncProfile() {
+      try {
+        await fetch('/api/auth/sync-profile', { method: 'POST' });
+      } catch (err) {
+        console.error('Error sincronizando perfil:', err);
+      }
+    }
+    syncProfile();
   }, []);
 
   useEffect(() => {
@@ -122,17 +136,32 @@ export default function EventsPage() {
     }
   };
 
+  // Función para cerrar sesión
+  const handleLogout = async () => {
+    // Elimina la cookie llamando a un endpoint
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
+  };
+
   return (
     <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-primary">Eventos</h1>
-        <button
-          onClick={() => setIsFormOpen(true)}
-          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-          disabled={loading}
-        >
-          Crear evento
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setIsFormOpen(true)}
+            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            disabled={loading}
+          >
+            Crear evento
+          </button>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
+            Cerrar sesión
+          </button>
+        </div>
       </div>
 
       {error && (
