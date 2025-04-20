@@ -3,6 +3,11 @@ description:
 globs: 
 alwaysApply: true
 ---
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # BodaMúsica.app – Cursor Rules
 
 App para gestionar eventos musicales (bodas, comuniones, etc.), desarrollada con Next.js 15, TypeScript, Tailwind CSS y Supabase. Pensada para móviles (80% del tráfico).

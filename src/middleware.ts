@@ -15,24 +15,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/login', req.url));
   }
 
-  let payload: any;
-  try {
-    payload = jwt.decode(token);
-  } catch {
-    return NextResponse.redirect(new URL('/login', req.url));
-  }
-
-  // El rol ahora viene en el JWT
-  const role = payload?.role;
-
-  if (!role) {
-    return NextResponse.redirect(new URL('/login', req.url));
-  }
-
-  if (pathname.startsWith('/admin') && role !== 'admin') {
-    return NextResponse.redirect(new URL('/events', req.url));
-  }
-
+  // Solo autenticación, no comprobación de rol
   return NextResponse.next();
 }
 

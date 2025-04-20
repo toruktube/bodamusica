@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Endpoint de perfil y roles
+
+- Existe el endpoint `/api/auth/me` (GET) que devuelve el perfil del usuario autenticado, incluyendo el campo `role`.
+- Este endpoint debe usarse desde el frontend o backend siempre que se necesite saber el rol real del usuario (por ejemplo, para mostrar/ocultar contenido o proteger rutas como `/admin`).
+- El endpoint consulta la tabla `profiles` usando el id del usuario extraído del JWT de la cookie de sesión.
+- No se debe confiar solo en el JWT para el rol, ya que Supabase puede no incluirlo como custom claim. 
