@@ -1,13 +1,13 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --primary: #df8218;
   --primary-light: #f19b3c;
   --primary-dark: #b26810;
-  
+
   --background: #ffffff;
   --foreground: #171717;
-  
+
   --accent-1: #f9f0e6;
   --accent-2: #f5e0c6;
   --accent-3: #ecc799;
@@ -36,5 +36,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Lato', sans-serif;
 }

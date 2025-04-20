@@ -27,9 +27,9 @@ export interface Event {
   title: string;
   description: string;
   date: string;
-  hour: string;
-  minute: string;
+  hour: string; // formato HH:mm
   location: string;
+  place: string; // nuevo campo editable
   type: EventType;
   created_at?: string;
   moments: EventMoment[];
@@ -40,8 +40,8 @@ export interface EventFormData {
   title: string;
   type: EventType;
   date: string;
-  hour: string;
-  minute: string;
+  hour: string; // formato HH:mm
   location: string;
+  place: string; // nuevo campo editable
   description: string;
 }

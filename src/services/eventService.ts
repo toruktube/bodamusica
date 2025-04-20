@@ -9,15 +9,22 @@ export async function createEvent(eventData: EventFormData): Promise<Event> {
   // Crear un nuevo objeto con un ID generado
   const newEvent = {
     id: uuidv4(),
-    ...eventData,
+    title: eventData.title,
+    type: eventData.type,
+    date: eventData.date,
+    hour: eventData.hour, // HH:mm
+    location: eventData.location,
+    place: eventData.place,
+    description: eventData.description,
     created_at: new Date().toISOString(),
+    moments: [],
   };
 
   const { data, error } = await supabase.from('events').insert([newEvent]).select().single();
 
   if (error) {
-    console.error('Error creating event:', error);
-    throw error;
+    console.error('Supabase error:', error);
+    throw new Error('Error creando evento: ' + JSON.stringify(error));
   }
 
   return data as Event;

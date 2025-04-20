@@ -7,6 +7,7 @@ import { getEvents, createEvent, deleteEvent } from '@/services/eventService';
 import { toast } from 'react-hot-toast';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { RiTeamLine, RiCrossLine } from 'react-icons/ri';
 
 export default function EventsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -111,17 +112,6 @@ export default function EventsPage() {
     }
   };
 
-  // Función para traducir el tipo de evento a español
-  const getEventTypeText = (type: EventType): string => {
-    const typeMap: Record<EventType, string> = {
-      [EventType.CONCIERTO]: 'Concierto',
-      [EventType.CLASE]: 'Clase',
-      [EventType.ENSAYO]: 'Ensayo',
-      [EventType.OTRO]: 'Otro',
-    };
-    return typeMap[type] || 'Desconocido';
-  };
-
   // Función para formatear la fecha
   const formatDate = (dateString: string) => {
     try {
@@ -143,25 +133,25 @@ export default function EventsPage() {
     router.push('/login');
   };
 
+  // Función para obtener el icono según el tipo de evento
+  const getEventIcon = (type: EventType) => {
+    if (type === 'funeral') {
+      return <RiCrossLine className="text-primary text-2xl mr-2" title="Funeral" />;
+    }
+    return <RiTeamLine className="text-primary text-2xl mr-2" title="Evento" />;
+  };
+
   return (
     <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-primary">Eventos</h1>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setIsFormOpen(true)}
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            disabled={loading}
-          >
-            Crear evento
-          </button>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-          >
-            Cerrar sesión
-          </button>
-        </div>
+        <button
+          onClick={() => setIsFormOpen(true)}
+          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          disabled={loading}
+        >
+          Crear evento
+        </button>
       </div>
 
       {error && (
@@ -208,8 +198,11 @@ export default function EventsPage() {
                   key={event.id}
                   className="bg-white dark:bg-gray-700 p-4 rounded-md shadow border border-accent-2 hover:shadow-md transition-shadow"
                 >
-                  <div className="flex justify-between">
-                    <h3 className="text-lg font-medium text-primary-dark">{event.title}</h3>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center">
+                      {getEventIcon(event.type)}
+                      <h3 className="text-lg font-semibold text-primary-dark">{event.title}</h3>
+                    </div>
                     <button
                       onClick={() => handleDeleteEvent(event.id)}
                       className="text-red-500 hover:text-red-700"
@@ -231,16 +224,37 @@ export default function EventsPage() {
                   </div>
                   <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-sm">
                     <div>
-                      <span className="font-medium">Fecha: </span>
+                      <span className="font-medium">Fecha y hora: </span>
                       {formatDate(event.date)}
+                      {event.hour ? `, ${event.hour}` : ''}
                     </div>
                     <div>
                       <span className="font-medium">Lugar: </span>
-                      {event.location}
+                      {event.place ? event.place : event.location}
+                      {event.place && (
+                        <span className="block text-xs text-gray-500 dark:text-gray-400">
+                          {event.location}
+                        </span>
+                      )}
                     </div>
                     <div>
                       <span className="font-medium">Tipo: </span>
-                      {getEventTypeText(event.type)}
+                      {(() => {
+                        switch (event.type) {
+                          case 'boda_civil':
+                            return 'Boda Civil';
+                          case 'boda_religiosa':
+                            return 'Boda Religiosa';
+                          case 'comunion':
+                            return 'Comunión';
+                          case 'coctel':
+                            return 'Cóctel';
+                          case 'funeral':
+                            return 'Funeral';
+                          default:
+                            return 'Desconocido';
+                        }
+                      })()}
                     </div>
                     {event.description && (
                       <div className="md:col-span-2 mt-2">

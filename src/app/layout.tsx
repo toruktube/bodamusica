@@ -41,6 +41,10 @@ export default function RootLayout({
         <link rel="icon" href="/icon.png" />
         <link rel="shortcut icon" href="/icon.png" />
         <link rel="apple-touch-icon" href="/apple-icon.png" />
+        <link
+          href="https://fonts.googleapis.com/css?family=Lato:400,700&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}

@@ -14,9 +14,9 @@ export default function EventForm({ onClose, onSubmit }: EventFormProps) {
     title: '',
     type: EventType.BODA_CIVIL,
     date: '',
-    hour: '12',
-    minute: '00',
+    hour: '12:00',
     location: '',
+    place: '',
     description: '',
   });
 
@@ -46,11 +46,17 @@ export default function EventForm({ onClose, onSubmit }: EventFormProps) {
 
       autocompleteInstance.addListener('place_changed', () => {
         const place = autocompleteInstance.getPlace();
-        if (place.formatted_address) {
-          setFormData(prev => ({
-            ...prev,
-            location: place.formatted_address || '',
-          }));
+        setFormData(prev => ({
+          ...prev,
+          location: place.formatted_address || '',
+          place: place.name || place.formatted_address || '',
+        }));
+        if (place.geometry && place.geometry.location) {
+          mapInstance.setCenter(place.geometry.location);
+          new google.maps.Marker({
+            map: mapInstance,
+            position: place.geometry.location,
+          });
         }
       });
 
@@ -58,6 +64,22 @@ export default function EventForm({ onClose, onSubmit }: EventFormProps) {
       setAutocomplete(autocompleteInstance);
     });
   }, []);
+
+  // Actualizar el mapa cuando cambia la dirección manualmente
+  useEffect(() => {
+    if (map && formData.location) {
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ address: formData.location }, (results, status) => {
+        if (status === 'OK' && results && results[0].geometry) {
+          map.setCenter(results[0].geometry.location);
+          new google.maps.Marker({
+            map,
+            position: results[0].geometry.location,
+          });
+        }
+      });
+    }
+  }, [formData.location, map]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -143,8 +165,8 @@ export default function EventForm({ onClose, onSubmit }: EventFormProps) {
             </div>
 
             {/* Fecha y hora */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="col-span-1">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
                 <label
                   htmlFor="date"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -168,54 +190,25 @@ export default function EventForm({ onClose, onSubmit }: EventFormProps) {
                 >
                   Hora
                 </label>
-                <select
+                <input
+                  type="time"
                   id="hour"
                   name="hour"
                   required
                   value={formData.hour}
                   onChange={handleChange}
                   className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
-                >
-                  {Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')).map(hour => (
-                    <option key={hour} value={hour}>
-                      {hour}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label
-                  htmlFor="minute"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Minutos
-                </label>
-                <select
-                  id="minute"
-                  name="minute"
-                  required
-                  value={formData.minute}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
-                >
-                  {Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0')).map(
-                    minute => (
-                      <option key={minute} value={minute}>
-                        {minute}
-                      </option>
-                    )
-                  )}
-                </select>
+                />
               </div>
             </div>
 
-            {/* Lugar con Google Maps */}
+            {/* Dirección y lugar con Google Maps */}
             <div>
               <label
                 htmlFor="location"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                Lugar
+                Dirección
               </label>
               <input
                 type="text"
@@ -225,7 +218,22 @@ export default function EventForm({ onClose, onSubmit }: EventFormProps) {
                 value={formData.location}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
-                placeholder="Buscar lugar..."
+                placeholder="Buscar dirección..."
+              />
+              <label
+                htmlFor="place"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2"
+              >
+                Lugar (editable)
+              </label>
+              <input
+                type="text"
+                id="place"
+                name="place"
+                value={formData.place}
+                onChange={handleChange}
+                className="mt-1 block w-full rounded-md border-accent-2 bg-white dark:bg-gray-700 shadow-sm focus:border-primary focus:ring-primary focus:ring-opacity-50"
+                placeholder="Nombre del lugar (ej: Iglesia San Jerónimo)"
               />
               <div id="map" className="mt-2 h-48 w-full rounded-md border border-accent-2"></div>
             </div>
