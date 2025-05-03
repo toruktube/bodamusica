@@ -178,15 +178,15 @@ export default function EventsPage() {
         </div>
       )}
 
-      <div className="bg-accent-1 dark:bg-accent-1 shadow overflow-hidden rounded-lg border border-accent-2">
+      <div className="bg-accent-1 dark:bg-accent-1 shadow overflow-hidden rounded-lg border border-primary">
         <div className="px-4 py-5 sm:px-6">
-          <h2 className="text-lg font-medium text-primary-dark">Mis eventos musicales</h2>
-          <p className="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
+          <h2 className="text-lg font-medium text-primary">Mis eventos musicales</h2>
+          <p className="mt-1 max-w-2xl text-sm text-black">
             Gestiona tus eventos y la música para cada momento
           </p>
         </div>
 
-        <div className="border-t border-accent-2 px-4 py-5 sm:p-6">
+        <div className="border-t border-primary px-4 py-5 sm:p-6">
           {loading ? (
             <div className="flex justify-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -196,70 +196,56 @@ export default function EventsPage() {
               {events.map(event => (
                 <div
                   key={event.id}
-                  className="bg-white dark:bg-gray-700 p-4 rounded-md shadow border border-accent-2 hover:shadow-md transition-shadow"
+                  className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden border border-primary"
                 >
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      {getEventIcon(event.type)}
-                      <h3 className="text-lg font-semibold text-primary-dark">{event.title}</h3>
+                  <div className="p-6">
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-xl font-semibold text-primary mb-2 flex-grow">
+                        {event.title}
+                      </h3>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => router.push(`/events/edit/${event.id}`)}
+                          className="text-blue-500 hover:text-blue-700"
+                          title="Editar evento"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM4 12v4h4l10-10-4-4L4 12z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteEvent(event.id)}
+                          className="text-red-500 hover:text-red-700"
+                          title="Eliminar evento"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      onClick={() => handleDeleteEvent(event.id)}
-                      className="text-red-500 hover:text-red-700"
-                      title="Eliminar evento"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                  <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                    <div>
-                      <span className="font-medium">Fecha y hora: </span>
-                      {formatDate(event.date)}
-                      {event.hour ? `, ${event.hour}` : ''}
-                    </div>
-                    <div>
-                      <span className="font-medium">Lugar: </span>
-                      {event.place ? event.place : event.location}
-                      {event.place && (
-                        <span className="block text-xs text-gray-500 dark:text-gray-400">
-                          {event.location}
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <span className="font-medium">Tipo: </span>
-                      {(() => {
-                        switch (event.type) {
-                          case 'boda_civil':
-                            return 'Boda Civil';
-                          case 'boda_religiosa':
-                            return 'Boda Religiosa';
-                          case 'comunion':
-                            return 'Comunión';
-                          case 'coctel':
-                            return 'Cóctel';
-                          case 'funeral':
-                            return 'Funeral';
-                          default:
-                            return 'Desconocido';
-                        }
-                      })()}
+                    <div className="text-sm text-black mb-2">{getEventIcon(event.type)}</div>
+                    <div className="text-sm text-black mb-2">{formatDate(event.date)}</div>
+                    <div className="text-sm text-black mb-4">
+                      <span className="font-medium">Lugar:</span> {event.location}
                     </div>
                     {event.description && (
-                      <div className="md:col-span-2 mt-2">
-                        <span className="font-medium">Descripción: </span>
-                        {event.description}
+                      <div className="text-sm text-black mt-2 border-t pt-2 border-primary">
+                        <p>{event.description}</p>
                       </div>
                     )}
                   </div>
@@ -282,11 +268,11 @@ export default function EventsPage() {
             </div>
           )}
         </div>
-      </div>
 
-      {isFormOpen && (
-        <EventForm onClose={() => setIsFormOpen(false)} onSubmit={handleCreateEvent} />
-      )}
+        {isFormOpen && (
+          <EventForm onClose={() => setIsFormOpen(false)} onSubmit={handleCreateEvent} />
+        )}
+      </div>
     </main>
   );
 }

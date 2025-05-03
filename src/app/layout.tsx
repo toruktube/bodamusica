@@ -52,7 +52,7 @@ export default function RootLayout({
       >
         <Toaster position="top-right" />
         <Header />
-        <div className="flex-grow">{children}</div>
+        <main className="flex-grow">{children}</main>
         <Footer />
       </body>
     </html>
